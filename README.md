@@ -214,6 +214,64 @@ npm run start --prefix server
 
 ---
 
+## Deploy to Render
+
+The frontend and API are deployed as two Render services, with MongoDB Atlas as the hosted database.
+
+### 1. Create a MongoDB Atlas database
+
+Create a free Atlas cluster, add a database user, and allow Render to connect in Atlas Network Access. For a quick demo, `0.0.0.0/0` can be used; restrict this to trusted IPs for production. Copy the Atlas connection string and replace its password and database name as needed.
+
+### 2. Deploy the frontend
+
+Create a **Static Site** from the same GitHub repository:
+
+| Setting | Value |
+|---------|-------|
+| Root Directory | `client` |
+| Build Command | `npm install && npm run build` |
+| Publish Directory | `dist` |
+
+### 3. Deploy the backend
+
+Create a **Web Service** from the same repository:
+
+| Setting | Value |
+|---------|-------|
+| Root Directory | `server` |
+| Build Command | `npm install` |
+| Start Command | `npm start` |
+
+Set these environment variables in the backend service:
+
+| Name | Value |
+|------|-------|
+| `MONGODB_URI` | MongoDB Atlas connection string |
+| `JWT_SECRET` | A new, long random secret |
+| `CLIENT_URL` | The exact Render Static Site URL from step 2 |
+| `NODE_ENV` | `production` |
+| `OPENAI_API_KEY` | Optional; only needed for OpenAI features |
+
+Render assigns the port automatically. After deploy, verify `https://<backend-name>.onrender.com/api/health` returns `{"ok":true,"service":"festival-scheduler-api"}`.
+
+### 4. Connect the frontend to the API
+
+In the Static Site settings, add this environment variable using the backend URL from step 3 without a trailing slash:
+
+| Name | Value |
+|------|-------|
+| `VITE_API_URL` | `https://<backend-name>.onrender.com` |
+
+Trigger a new Static Site deploy so the frontend picks up the API URL. Add a rewrite rule for client-side routes: source `/*`, destination `/index.html`, action **Rewrite**. If the API was deployed before the static site, update `CLIENT_URL` to the static site URL and redeploy the backend.
+
+### 5. Optional demo data
+
+To add demo data, run `npm run seed` from the project root with `MONGODB_URI` set to the Atlas connection string. This clears existing data in that database before inserting demo records.
+
+> Render's local filesystem is ephemeral on the free Web Service plan. Uploaded event images may be lost when the service restarts or redeploys; use persistent storage or object storage if uploaded files must be retained.
+
+---
+
 ## Default Credentials
 
 After running `npm run seed`, use these accounts:

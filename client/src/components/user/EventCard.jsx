@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Badge, { formatDate } from '../Badge';
+import { assetUrl } from '../../api/api';
 
 export default function EventCard({ event, actions, compact = false }) {
   if (!event) return null;
@@ -11,7 +12,7 @@ export default function EventCard({ event, actions, compact = false }) {
     <div className={`group overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50 transition hover:border-brand-500/30 hover:shadow-glow ${compact ? '' : 'flex flex-col'}`}>
       <div className={`relative bg-gradient-to-br from-brand-900/30 via-slate-800 to-slate-900 ${compact ? 'h-28' : 'aspect-[16/10]'}`}>
         {event.poster ? (
-          <img src={event.poster} alt={event.title} className="h-full w-full object-cover" />
+          <img src={assetUrl(event.poster)} alt={event.title} className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full items-center justify-center">
             <span className={`opacity-40 ${compact ? 'text-3xl' : 'text-5xl'}`}>🎪</span>

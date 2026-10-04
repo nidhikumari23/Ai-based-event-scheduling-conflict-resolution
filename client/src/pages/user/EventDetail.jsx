@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { eventAPI, registrationAPI, feedbackAPI, userPortalAPI } from '../../api/api';
+import { assetUrl, eventAPI, registrationAPI, feedbackAPI, userPortalAPI } from '../../api/api';
 import Badge, { formatDate } from '../../components/Badge';
 import Loading from '../../components/Loading';
 import Alert from '../../components/user/Alert';
@@ -132,7 +132,7 @@ export default function EventDetail() {
       <div className="overflow-hidden rounded-2xl border border-slate-800">
         <div className="relative aspect-[21/9] bg-gradient-to-br from-brand-900/40 via-slate-800 to-slate-900">
           {event.poster ? (
-            <img src={event.poster} alt={event.title} className="h-full w-full object-cover" />
+            <img src={assetUrl(event.poster)} alt={event.title} className="h-full w-full object-cover" />
           ) : (
             <div className="flex h-full items-center justify-center"><span className="text-8xl opacity-20">🎭</span></div>
           )}
