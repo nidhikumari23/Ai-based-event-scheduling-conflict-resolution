@@ -53,7 +53,7 @@ export default function Landing() {
             <Link to="/register" className="btn-primary px-8 py-3 text-base">
               Explore Festival
             </Link>
-            <Link to="/login" className="btn-secondary px-8 py-3 text-base">
+            <Link to="/admin" className="btn-secondary px-8 py-3 text-base">
               Admin Portal
             </Link>
           </div>

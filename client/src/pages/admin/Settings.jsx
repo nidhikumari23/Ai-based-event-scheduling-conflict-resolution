@@ -5,6 +5,14 @@ import Loading from '../../components/Loading';
 import PageHeader from '../../components/admin/PageHeader';
 import Alert from '../../components/admin/Alert';
 
+const isStrongPassword = (password) =>
+  password.length >= 12 &&
+  password.length <= 128 &&
+  /[a-z]/.test(password) &&
+  /[A-Z]/.test(password) &&
+  /\d/.test(password) &&
+  /[^A-Za-z0-9\s]/.test(password);
+
 export default function Settings() {
   const { updateUser } = useAuth();
   const [settings, setSettings] = useState(null);
@@ -44,9 +52,17 @@ export default function Settings() {
       setMsg({ type: 'error', text: 'Passwords do not match.' });
       return;
     }
-    await authAPI.changePassword({ currentPassword: passwords.currentPassword, newPassword: passwords.newPassword });
-    setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    setMsg({ type: 'success', text: 'Password updated.' });
+    if (!isStrongPassword(passwords.newPassword)) {
+      setMsg({ type: 'error', text: 'Password must be 12–128 characters and include lowercase, uppercase, a number, and a symbol.' });
+      return;
+    }
+    try {
+      await authAPI.changePassword({ currentPassword: passwords.currentPassword, newPassword: passwords.newPassword });
+      setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setMsg({ type: 'success', text: 'Password updated.' });
+    } catch (error) {
+      setMsg({ type: 'error', text: error.response?.data?.message || 'Password update failed.' });
+    }
   };
 
   if (loading) return <Loading />;
@@ -132,8 +148,9 @@ export default function Settings() {
           <form onSubmit={changePassword} className="card space-y-4">
             <h3 className="font-semibold text-white">Change Password</h3>
             <input type="password" className="input-field" placeholder="Current password" value={passwords.currentPassword} onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })} required />
-            <input type="password" className="input-field" placeholder="New password" value={passwords.newPassword} onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })} required />
-            <input type="password" className="input-field" placeholder="Confirm new password" value={passwords.confirmPassword} onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })} required />
+            <input type="password" className="input-field" placeholder="New password" value={passwords.newPassword} onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })} autoComplete="new-password" required />
+            <p className="text-xs text-slate-500">Use 12–128 characters with lowercase, uppercase, a number, and a symbol.</p>
+            <input type="password" className="input-field" placeholder="Confirm new password" value={passwords.confirmPassword} onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })} autoComplete="new-password" required />
             <button type="submit" className="btn-secondary">Update Password</button>
           </form>
         </div>

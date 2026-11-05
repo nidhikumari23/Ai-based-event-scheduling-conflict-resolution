@@ -22,12 +22,14 @@ import ScheduleMgmt from './pages/admin/ScheduleMgmt';
 import AdminNotifications from './pages/admin/AdminNotifications';
 import Reports from './pages/admin/Reports';
 import AdminFeedback from './pages/admin/AdminFeedback';
+import AdminAttendance from './pages/admin/AdminAttendance';
 import Settings from './pages/admin/Settings';
 
 import UserDashboard from './pages/user/UserDashboard';
 import UserEvents from './pages/user/UserEvents';
 import EventDetail from './pages/user/EventDetail';
 import MyRegistrations from './pages/user/MyRegistrations';
+import MyEvents from './pages/user/MyEvents';
 import UserSchedule from './pages/user/UserSchedule';
 import Recommendations from './pages/user/Recommendations';
 import UserNotifications from './pages/user/UserNotifications';
@@ -56,6 +58,7 @@ export default function App() {
           <Route path="events" element={<AdminEvents />} />
           <Route path="staff" element={<Staff />} />
           <Route path="participants" element={<Participants />} />
+          <Route path="attendance" element={<AdminAttendance />} />
           <Route path="ai-scheduling" element={<AIScheduling />} />
           <Route path="conflicts" element={<Conflicts />} />
           <Route path="schedule" element={<ScheduleMgmt />} />
@@ -66,12 +69,20 @@ export default function App() {
         </Route>
       </Route>
 
+      <Route element={<ProtectedRoute adminOrOrganizer />}>
+        <Route path="/organizer" element={<AdminLayout />}>
+          <Route path="attendance" element={<AdminAttendance />} />
+          <Route index element={<Navigate to="attendance" replace />} />
+        </Route>
+      </Route>
+
       <Route element={<ProtectedRoute />}>
         <Route path="/user" element={<UserLayout />}>
           <Route index element={<UserDashboard />} />
           <Route path="events" element={<UserEvents />} />
           <Route path="events/:id" element={<EventDetail />} />
           <Route path="registrations" element={<MyRegistrations />} />
+          <Route path="my-events" element={<MyEvents />} />
           <Route path="personal-schedule" element={<PersonalSchedule />} />
           <Route path="schedule" element={<UserSchedule />} />
           <Route path="recommendations" element={<Recommendations />} />

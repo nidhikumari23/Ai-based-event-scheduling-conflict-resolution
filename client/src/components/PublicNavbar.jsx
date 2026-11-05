@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function PublicNavbar() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isOrganizer, logout } = useAuth();
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-xl">
@@ -31,16 +31,21 @@ export default function PublicNavbar() {
         </nav>
         <div className="flex items-center gap-3">
           {user ? (
-            <Link to={isAdmin ? '/admin' : '/user'} className="btn-primary text-sm">
-              Dashboard
-            </Link>
+            <>
+              <Link to={isAdmin ? '/admin' : isOrganizer ? '/organizer' : '/user'} className="btn-primary text-sm">
+                Dashboard
+              </Link>
+              <button type="button" onClick={logout} className="btn-secondary text-sm">
+                Sign Out
+              </button>
+            </>
           ) : (
             <>
-              <Link to="/login" className="hidden text-sm text-slate-300 hover:text-white sm:block">
-                Sign In
+              <Link to="/login" className="btn-secondary text-sm">
+                Login
               </Link>
               <Link to="/register" className="btn-primary text-sm">
-                Get Started
+                Sign Up
               </Link>
             </>
           )}

@@ -18,7 +18,7 @@ export default function Register() {
         ...form,
         interests: form.interests.split(',').map((s) => s.trim()).filter(Boolean),
       });
-      navigate(user.role === 'admin' ? '/admin' : '/user');
+      navigate(user.role === 'admin' ? '/admin' : user.role === 'organizer' ? '/organizer' : '/user');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {

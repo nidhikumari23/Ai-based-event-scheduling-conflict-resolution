@@ -1,7 +1,29 @@
+# Dependencies
 node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build files
 dist/
+build/
+client/dist/
+
+# Environment variables
 .env
+.env.*
+!.env.example
+
+# Uploads
 server/uploads/*
 !server/uploads/.gitkeep
+
+# Logs
 *.log
+npm-debug.log*
+
+# System files
 .DS_Store
+Thumbs.db
+
+# Editor
+.vscode/

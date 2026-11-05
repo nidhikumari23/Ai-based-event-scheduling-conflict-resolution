@@ -19,7 +19,15 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    const method = res.config.method?.toLowerCase();
+    const url = res.config.url || '';
+    if (['post', 'put', 'patch', 'delete'].includes(method) &&
+      (/^\/events(?:\/|$)/.test(url) || /^\/schedules(?:\/|$)/.test(url))) {
+      window.dispatchEvent(new Event('festival:schedule-changed'));
+    }
+    return res;
+  },
   (err) => {
     if (err.response?.status === 401) {
       localStorage.removeItem('token');
@@ -87,9 +95,11 @@ export const eventAPI = {
   list: (params) => api.get('/events', { params }),
   get: (id) => api.get(`/events/${id}`),
   create: (data) => api.post('/events', data),
+  alternatives: (data) => api.post('/events/alternatives', data),
   update: (id, data) => api.put(`/events/${id}`, data),
   remove: (id) => api.delete(`/events/${id}`),
   cancel: (id) => api.patch(`/events/${id}/cancel`),
+  complete: (id) => api.patch(`/events/${id}/complete`),
   reschedule: (id, data) => api.patch(`/events/${id}/reschedule`, data),
   featured: (id) => api.patch(`/events/${id}/featured`),
   live: () => api.get('/events/live'),
@@ -107,7 +117,11 @@ export const staffAPI = {
 export const registrationAPI = {
   register: (eventId) => api.post('/registrations', { eventId }),
   my: () => api.get('/registrations/my'),
+  myEvents: () => api.get('/registrations/my/events'),
+  attendanceEvents: () => api.get('/registrations/attendance/events'),
+  eventAttendance: (eventId) => api.get(`/registrations/attendance/events/${eventId}`),
   all: (params) => api.get('/registrations', { params }),
+  verifyAttendance: (id, attendanceStatus) => api.patch(`/registrations/${id}/attendance`, { attendanceStatus }),
   updateStatus: (id, status) => api.patch(`/registrations/${id}/status`, { status }),
   cancel: (eventId) => api.delete(`/registrations/${eventId}`),
   export: (event) => api.get(`/registrations/export${event ? `?event=${event}` : ''}`),
@@ -119,8 +133,11 @@ export const scheduleAPI = {
   public: () => api.get('/schedules/public'),
   view: (type) => api.get(`/schedules/view/${type}`),
   save: (data) => api.post('/schedules', data),
+  validate: (data) => api.post('/schedules/validate', data),
+  approve: (data) => api.post('/schedules/approve', data),
   generate: (data) => api.post('/schedules/generate', data),
-  lock: () => api.patch('/schedules/lock'),
+  lock: (reason) => api.patch('/schedules/lock', { reason }),
+  unlock: () => api.patch('/schedules/unlock'),
   publish: (publish = true) => api.patch('/schedules/publish', { publish }),
 };
 
@@ -133,9 +150,10 @@ export const conflictAPI = {
 };
 
 export const aiAPI = {
-  generateSchedule: () => api.post('/ai/schedule/generate'),
-  regenerate: () => api.post('/ai/schedule/regenerate'),
+  generateSchedule: (data = {}) => api.post('/ai/schedule/generate', data),
+  regenerate: (data = {}) => api.post('/ai/schedule/regenerate', data),
   recommendations: () => api.get('/ai/recommendations'),
+  askEventAssistant: (question) => api.post('/ai/event-assistant', { question }),
   personalPlan: () => api.get('/ai/personal-plan'),
   checkOverlaps: (eventIds) => api.post('/ai/check-overlaps', { eventIds }),
 };

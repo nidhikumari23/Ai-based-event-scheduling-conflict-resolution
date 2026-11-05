@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 
 const scheduleSchema = new mongoose.Schema(
   {
+    singletonKey: { type: String, unique: true, sparse: true, select: false },
+    revision: { type: Number, default: 0 },
     festivalName: { type: String, default: 'Metro Nexus Festival' },
     entries: [
       {
@@ -15,6 +17,9 @@ const scheduleSchema = new mongoose.Schema(
     ],
     aiSummary: { type: String, default: '' },
     isLocked: { type: Boolean, default: false },
+    lockReason: { type: String, default: '' },
+    lockedAt: { type: Date, default: null },
+    lockedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     isPublished: { type: Boolean, default: false },
     generatedBy: { type: String, enum: ['manual', 'ai', 'hybrid'], default: 'manual' },
   },

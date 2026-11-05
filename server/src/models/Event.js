@@ -20,6 +20,10 @@ const eventSchema = new mongoose.Schema(
     endTime: { type: String, required: true },
     expectedAudience: { type: Number, default: 100 },
     priority: { type: Number, default: 5, min: 1, max: 10 },
+    setupMinutes: { type: Number, default: 0, min: 0 },
+    cleanupMinutes: { type: Number, default: 0, min: 0 },
+    preferredTimeSlots: [{ startTime: String, endTime: String }],
+    requiredFacilities: [{ type: String, trim: true }],
     status: {
       type: String,
       enum: ['draft', 'scheduled', 'published', 'cancelled', 'completed'],

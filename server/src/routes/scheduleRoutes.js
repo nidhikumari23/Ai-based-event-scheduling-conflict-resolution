@@ -7,8 +7,11 @@ router.get('/public', ctrl.getPublicSchedule);
 router.get('/view/:view', ctrl.getScheduleByView);
 router.get('/', protect, adminOnly, ctrl.getSchedule);
 router.post('/', protect, adminOnly, ctrl.saveSchedule);
+router.post('/validate', protect, adminOnly, ctrl.validateSchedule);
+router.post('/approve', protect, adminOnly, ctrl.approveSchedule);
 router.post('/generate', protect, adminOnly, ctrl.generateScheduleFromEvents);
 router.patch('/lock', protect, adminOnly, ctrl.lockSchedule);
+router.patch('/unlock', protect, adminOnly, ctrl.unlockSchedule);
 router.patch('/publish', protect, adminOnly, ctrl.publishSchedule);
 
 export default router;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { dashboardAPI } from '../../api/api';
+import { useAuth } from '../../context/AuthContext';
 import AdminSidebar from './AdminSidebar';
 
 const pageTitles = {
@@ -12,6 +13,7 @@ const pageTitles = {
   '/admin/staff': 'Staff Management',
   '/admin/events': 'Event Management',
   '/admin/participants': 'Participant Management',
+  '/admin/attendance': 'Attendance Management',
   '/admin/ai-scheduling': 'AI Scheduling',
   '/admin/conflicts': 'Conflict Resolution',
   '/admin/schedule': 'Schedule Management',
@@ -19,16 +21,19 @@ const pageTitles = {
   '/admin/reports': 'Reports & Analytics',
   '/admin/feedback': 'Feedback Management',
   '/admin/settings': 'System Settings',
+  '/organizer/attendance': 'Attendance Management',
 };
 
 export default function AdminLayout() {
   const location = useLocation();
+  const { isAdmin } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openConflicts, setOpenConflicts] = useState(0);
 
   useEffect(() => {
+    if (!isAdmin) return;
     dashboardAPI.admin().then(({ data }) => setOpenConflicts(data.stats?.openConflicts || 0)).catch(() => {});
-  }, [location.pathname]);
+  }, [isAdmin, location.pathname]);
 
   const title = Object.entries(pageTitles).find(([path]) =>
     path === '/admin' ? location.pathname === '/admin' : location.pathname.startsWith(path) && path !== '/admin'

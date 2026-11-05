@@ -10,7 +10,12 @@ export const getMyNotifications = asyncHandler(async (req, res) => {
 });
 
 export const markRead = asyncHandler(async (req, res) => {
-  await Notification.findByIdAndUpdate(req.params.id, { isRead: true });
+  const notification = await Notification.findOneAndUpdate(
+    { _id: req.params.id, user: req.user._id },
+    { isRead: true },
+    { new: true }
+  );
+  if (!notification) return res.status(404).json({ message: 'Notification not found.' });
   res.json({ message: 'Marked as read' });
 });
 
@@ -38,6 +43,10 @@ export const sendNotification = asyncHandler(async (req, res) => {
 });
 
 export const deleteNotification = asyncHandler(async (req, res) => {
-  await Notification.findByIdAndDelete(req.params.id);
+  const notification = await Notification.findOneAndDelete({
+    _id: req.params.id,
+    user: req.user._id,
+  });
+  if (!notification) return res.status(404).json({ message: 'Notification not found.' });
   res.json({ message: 'Deleted' });
 });

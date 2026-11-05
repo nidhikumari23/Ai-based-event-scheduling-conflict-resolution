@@ -25,7 +25,7 @@ const seed = async () => {
   await connectDB();
 
   await Promise.all([
-    User.deleteMany(),
+    User.deleteMany({ role: { $ne: 'admin' } }),
     Category.deleteMany(),
     Brand.deleteMany(),
     Venue.deleteMany(),
@@ -41,14 +41,6 @@ const seed = async () => {
   ]);
 
   console.log('Database cleared');
-
-  const admin = await User.create({
-    name: 'Festival Admin',
-    email: 'admin@metronexus.com',
-    password: 'admin123',
-    role: 'admin',
-    phone: '+1-555-0100',
-  });
 
   const users = await User.create([
     { name: 'Sarah Chen', email: 'sarah@example.com', password: 'user123', interests: ['Music', 'Cultural'] },
@@ -318,7 +310,7 @@ const seed = async () => {
   ]);
 
   console.log('\n✅ Seed completed successfully!\n');
-  console.log('Admin Login: admin@metronexus.com / admin123');
+  console.log('Seed data created. If no admin exists, create one with `npm run bootstrap:admin --prefix server`.');
   console.log('User Login:  sarah@example.com / user123');
   console.log(`Created: ${categories.length} categories, ${brands.length} brands, ${venues.length} venues`);
   console.log(`         ${resources.length} resources, ${staff.length} staff, ${events.length} events`);

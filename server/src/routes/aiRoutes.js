@@ -6,6 +6,7 @@ const router = express.Router();
 router.post('/schedule/generate', protect, adminOnly, ctrl.generateSchedule);
 router.post('/schedule/regenerate', protect, adminOnly, ctrl.regenerateAfterChanges);
 router.get('/recommendations', protect, ctrl.getRecommendations);
+router.post('/event-assistant', protect, ctrl.answerEventAssistant);
 router.get('/personal-plan', protect, ctrl.getPersonalPlan);
 router.post('/check-overlaps', protect, ctrl.checkUserOverlaps);
 

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 const navItems = [
   { to: '/user', label: 'Dashboard', icon: '📊', end: true },
   { to: '/user/events', label: 'Browse Events', icon: '🎭' },
+  { to: '/user/my-events', label: 'My Events', icon: '📜' },
   { to: '/user/registrations', label: 'My Registrations', icon: '🎫' },
   { to: '/user/personal-schedule', label: 'Personal Schedule', icon: '📋' },
   { to: '/user/schedule', label: 'Festival Schedule', icon: '📅' },

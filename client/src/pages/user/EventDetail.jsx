@@ -17,10 +17,12 @@ export default function EventDetail() {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [msg, setMsg] = useState({ type: 'info', text: '' });
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
   const load = async () => {
     setLoading(true);
+    setLoadError('');
     try {
       const [ev, rat, regs, schedule, myFb] = await Promise.all([
         eventAPI.get(id),
@@ -36,6 +38,8 @@ export default function EventDetail() {
       const existing = myFb.data.find((f) => f.event?._id === id || f.event === id);
       setMyFeedback(existing || null);
       if (existing) setFeedbackForm({ rating: existing.rating, comment: existing.comment });
+    } catch (err) {
+      setLoadError(err.response?.data?.message || 'Unable to load event and feedback details.');
     } finally {
       setLoading(false);
     }
@@ -111,17 +115,28 @@ export default function EventDetail() {
 
   const deleteFeedback = async () => {
     if (!confirm('Delete your feedback for this event?')) return;
-    await feedbackAPI.remove(myFeedback._id);
-    setMyFeedback(null);
-    setFeedbackForm({ rating: 5, comment: '' });
-    setMsg({ type: 'success', text: 'Feedback deleted.' });
+    setActionLoading(true);
+    try {
+      await feedbackAPI.remove(myFeedback._id);
+      setMyFeedback(null);
+      setFeedbackForm({ rating: 5, comment: '' });
+      setMsg({ type: 'success', text: 'Feedback deleted.' });
+    } catch (err) {
+      setMsg({ type: 'error', text: err.response?.data?.message || 'Could not delete feedback' });
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   if (loading) return <Loading />;
+  if (loadError) return <EmptyState title={loadError} action={<Link to="/user/events" className="btn-primary">Back to Events</Link>} />;
   if (!event) return <EmptyState title="Event not found" action={<Link to="/user/events" className="btn-primary">Back to Events</Link>} />;
 
   const seatsLeft = event.venue ? Math.max(0, event.venue.capacity - (event.registrationCount || 0)) : null;
   const fillPercent = event.venue ? Math.min(100, ((event.registrationCount || 0) / event.venue.capacity) * 100) : 0;
+  const canReview = event.status === 'completed' &&
+    registration?.status === 'approved' &&
+    registration.attendanceStatus === 'verified';
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -208,9 +223,15 @@ export default function EventDetail() {
               <button onClick={togglePersonalPlan} disabled={actionLoading} className="btn-secondary w-full">
                 {inPersonalPlan ? 'Remove from Personal Plan' : 'Add to Personal Plan'}
               </button>
-              <button onClick={() => setShowFeedbackModal(true)} className="btn-secondary w-full">
-                {myFeedback ? 'Edit My Review' : 'Write a Review'}
-              </button>
+              {canReview && !myFeedback && (
+                <button onClick={() => setShowFeedbackModal(true)} className="btn-secondary w-full">Write a Review</button>
+              )}
+              {myFeedback && (
+                <Link to="/user/feedback" className="btn-secondary block w-full text-center">View My Feedback</Link>
+              )}
+              {event.status === 'completed' && registration?.status === 'approved' && registration.attendanceStatus !== 'verified' && (
+                <p className="text-xs text-slate-500">Feedback is available after an administrator verifies your attendance.</p>
+              )}
             </div>
           </div>
 

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,7 +16,17 @@ export default function Login() {
     setLoading(true);
     try {
       const user = await login(form.email, form.password);
-      navigate(user.role === 'admin' ? '/admin' : '/user');
+      const requestedPath = location.state?.from?.pathname;
+      const requestedSearch = location.state?.from?.search || '';
+      const requestedHash = location.state?.from?.hash || '';
+      const rolePath = user.role === 'admin' ? '/admin' : user.role === 'organizer' ? '/organizer' : '/user';
+      const canReturnToRequestedPath = requestedPath === rolePath || requestedPath?.startsWith(`${rolePath}/`);
+      navigate(
+        canReturnToRequestedPath
+          ? `${requestedPath}${requestedSearch}${requestedHash}`
+          : rolePath,
+        { replace: true }
+      );
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     } finally {

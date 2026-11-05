@@ -14,13 +14,23 @@ export default function MyFeedback() {
   const [msg, setMsg] = useState({ type: 'info', text: '' });
   const [editItem, setEditItem] = useState(null);
   const [form, setForm] = useState({ rating: 5, comment: '' });
+  const [loadError, setLoadError] = useState('');
 
-  const load = () => {
+  const load = async () => {
     setLoading(true);
-    feedbackAPI.my().then(({ data }) => setFeedback(data)).finally(() => setLoading(false));
+    setLoadError('');
+    try {
+      const { data } = await feedbackAPI.my();
+      if (!Array.isArray(data)) throw new Error('The feedback API returned an invalid response.');
+      setFeedback(data);
+    } catch (error) {
+      setLoadError(error.response?.data?.message || error.message || 'Unable to load your feedback.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
 
   const openEdit = (item) => {
     setEditItem(item);
@@ -29,17 +39,25 @@ export default function MyFeedback() {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    await feedbackAPI.update(editItem._id, form);
-    setEditItem(null);
-    setMsg({ type: 'success', text: 'Feedback updated successfully.' });
-    load();
+    try {
+      await feedbackAPI.update(editItem._id, form);
+      setEditItem(null);
+      setMsg({ type: 'success', text: 'Feedback updated successfully.' });
+      await load();
+    } catch (error) {
+      setMsg({ type: 'error', text: error.response?.data?.message || 'Unable to update feedback.' });
+    }
   };
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this feedback?')) return;
-    await feedbackAPI.remove(id);
-    setMsg({ type: 'success', text: 'Feedback deleted.' });
-    load();
+    try {
+      await feedbackAPI.remove(id);
+      setMsg({ type: 'success', text: 'Feedback deleted.' });
+      await load();
+    } catch (error) {
+      setMsg({ type: 'error', text: error.response?.data?.message || 'Unable to delete feedback.' });
+    }
   };
 
   const avgRating = feedback.length
@@ -56,6 +74,12 @@ export default function MyFeedback() {
       />
 
       <Alert type={msg.type} message={msg.text} onClose={() => setMsg({ type: 'info', text: '' })} />
+      {loadError && (
+        <div role="alert" className="card border border-red-500/30 text-sm text-red-300">
+          {loadError}
+          <button type="button" onClick={load} className="ml-3 underline">Retry</button>
+        </div>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5 text-center">
@@ -72,7 +96,7 @@ export default function MyFeedback() {
         </div>
       </div>
 
-      {loading ? <Loading /> : feedback.length ? (
+      {loading ? <Loading /> : loadError ? null : feedback.length ? (
         <div className="space-y-4">
           {feedback.map((f) => (
             <div key={f._id} className="card">

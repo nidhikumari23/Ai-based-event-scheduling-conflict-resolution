@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { authAPI, registrationAPI, userPortalAPI, feedbackAPI } from '../../api/api';
 import { useAuth } from '../../context/AuthContext';
 import Badge, { formatDate } from '../../components/Badge';
@@ -6,20 +7,33 @@ import Loading from '../../components/Loading';
 import PageHeader from '../../components/user/PageHeader';
 import Alert from '../../components/user/Alert';
 
-const interestOptions = ['Music', 'Dance', 'Drama', 'Technical', 'Sports', 'Food', 'Cultural', 'Art'];
+const interestOptions = [
+  'Technical', 'Cultural', 'Sports', 'Workshop', 'Entertainment',
+  'Music', 'Dance', 'Drama', 'Food', 'Art',
+];
+const isStrongPassword = (password) =>
+  password.length >= 12 &&
+  password.length <= 128 &&
+  /[a-z]/.test(password) &&
+  /[A-Z]/.test(password) &&
+  /\d/.test(password) &&
+  /[^A-Za-z0-9\s]/.test(password);
 
 export default function Profile() {
   const { user, updateUser, logout } = useAuth();
+  const [searchParams] = useSearchParams();
   const [profile, setProfile] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
     interests: user?.interests || [],
+    skills: user?.skills || [],
   });
+  const [skillsText, setSkillsText] = useState((user?.skills || []).join(', '));
   const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [stats, setStats] = useState(null);
   const [msg, setMsg] = useState({ type: 'info', text: '' });
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
 
   useEffect(() => {
     Promise.all([
@@ -37,7 +51,9 @@ export default function Profile() {
         name: user.name || '',
         phone: user.phone || '',
         interests: user.interests || [],
+        skills: user.skills || [],
       });
+      setSkillsText((user.skills || []).join(', '));
     }
   }, [user]);
 
@@ -53,7 +69,8 @@ export default function Profile() {
   const saveProfile = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await authAPI.updateProfile(profile);
+      const skills = [...new Set(skillsText.split(',').map((skill) => skill.trim()).filter(Boolean))];
+      const { data } = await authAPI.updateProfile({ ...profile, skills });
       updateUser(data);
       setMsg({ type: 'success', text: 'Profile updated successfully.' });
     } catch (err) {
@@ -67,8 +84,8 @@ export default function Profile() {
       setMsg({ type: 'error', text: 'New passwords do not match.' });
       return;
     }
-    if (passwords.newPassword.length < 6) {
-      setMsg({ type: 'error', text: 'Password must be at least 6 characters.' });
+    if (!isStrongPassword(passwords.newPassword)) {
+      setMsg({ type: 'error', text: 'Password must be 12–128 characters and include lowercase, uppercase, a number, and a symbol.' });
       return;
     }
     try {
@@ -172,8 +189,8 @@ export default function Profile() {
       {activeTab === 'interests' && (
         <form onSubmit={saveProfile} className="card space-y-5">
           <div>
-            <h3 className="font-semibold text-white">Event Interests</h3>
-            <p className="mt-1 text-sm text-slate-500">Select categories you're interested in for better AI recommendations</p>
+            <h3 className="font-semibold text-white">Recommendation Preferences</h3>
+            <p className="mt-1 text-sm text-slate-500">Interests and skills personalize recommendations alongside your registrations and feedback.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {interestOptions.map((interest) => (
@@ -191,7 +208,22 @@ export default function Profile() {
               </button>
             ))}
           </div>
-          <button type="submit" className="btn-primary">Save Interests</button>
+          <div>
+            <label htmlFor="recommendation-skills" className="mb-1.5 block text-sm text-slate-400">Skills or topics</label>
+            <textarea
+              id="recommendation-skills"
+              className="input-field min-h-24"
+              value={skillsText}
+              onChange={(e) => setSkillsText(e.target.value)}
+              placeholder="For example: robotics, photography, basketball"
+              maxLength={1500}
+            />
+            <p className="mt-1 text-xs text-slate-500">Separate up to 25 skills with commas.</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="submit" className="btn-primary">Save Preferences</button>
+            <Link to="/user/recommendations" className="btn-secondary">View Recommendations</Link>
+          </div>
         </form>
       )}
 
@@ -200,7 +232,8 @@ export default function Profile() {
           <form onSubmit={changePassword} className="card space-y-4">
             <h3 className="font-semibold text-white">Change Password</h3>
             <input type="password" className="input-field" placeholder="Current password" value={passwords.currentPassword} onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })} required />
-            <input type="password" className="input-field" placeholder="New password (min 6 characters)" value={passwords.newPassword} onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })} required />
+            <input type="password" className="input-field" placeholder="New password" value={passwords.newPassword} onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })} autoComplete="new-password" required />
+            <p className="text-xs text-slate-500">Use 12–128 characters with lowercase, uppercase, a number, and a symbol.</p>
             <input type="password" className="input-field" placeholder="Confirm new password" value={passwords.confirmPassword} onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })} required />
             <button type="submit" className="btn-primary">Update Password</button>
           </form>

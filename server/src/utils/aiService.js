@@ -41,51 +41,6 @@ Return JSON with: summary (string), suggestions (array of {eventId, order, recom
   return JSON.parse(response.choices[0].message.content);
 };
 
-export const generateAIRecommendations = async (user, events) => {
-  const client = await getClient();
-  const interests = user.interests || [];
-
-  if (!client) {
-    const scored = events
-      .map((e) => ({
-        event: e,
-        score:
-          (interests.includes(e.category?.name) ? 10 : 0) +
-          (e.isFeatured ? 5 : 0) +
-          (e.priority || 5),
-      }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 5);
-
-    return {
-      summary: 'Personalized recommendations based on your interests and featured events.',
-      recommendations: scored.map(({ event, score }) => ({
-        eventId: event._id,
-        title: event.title,
-        reason: interests.includes(event.category?.name)
-          ? `Matches your interest in ${event.category?.name}`
-          : event.isFeatured
-            ? 'Featured event'
-            : 'Popular upcoming event',
-        score,
-      })),
-    };
-  }
-
-  const prompt = `Recommend festival events for a user.
-User interests: ${interests.join(', ') || 'general'}
-Available events: ${JSON.stringify(events.map((e) => ({ id: e._id, title: e.title, category: e.category?.name, date: e.date, featured: e.isFeatured })))}
-Return JSON with: summary (string), recommendations (array of {eventId, title, reason, score}).`;
-
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [{ role: 'user', content: prompt }],
-    response_format: { type: 'json_object' },
-  });
-
-  return JSON.parse(response.choices[0].message.content);
-};
-
 export const resolveConflictWithAI = async (conflict, events) => {
   const client = await getClient();
   if (!client) {
@@ -109,31 +64,41 @@ Return JSON with: suggestion (string), steps (array of strings).`;
   return JSON.parse(response.choices[0].message.content);
 };
 
-export const generatePersonalPlan = async (user, registeredEvents, allEvents) => {
-  const client = await getClient();
-  if (!client) {
-    return {
-      plan: registeredEvents.map((e) => ({
-        time: `${e.startTime} - ${e.endTime}`,
-        event: e.title,
-        venue: e.venue?.name || 'TBD',
-      })),
-      warnings: [],
-      summary: 'Your personal festival plan based on registered events.',
-    };
+export const explainFeasibleSchedules = async ({ assignments, criteria, context = 'schedule' }) => {
+  const fallback = assignments.length
+    ? 'Feasible options were generated and ranked deterministically. Venue, staff, resource, timing, buffer, and capacity checks remain authoritative.'
+    : 'No feasible assignments were found under the current availability and scheduling constraints.';
+  try {
+    const client = await getClient();
+    if (!client || !assignments.length) return { explanation: fallback, aiEnabled: false };
+
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'Explain only the provided, already validated schedule options and score criteria. Do not invent availability, events, or alternate dates/times/venues. Do not change their order or feasibility.',
+        },
+        {
+          role: 'user',
+          content: JSON.stringify({
+            context,
+            scoreCriteria: criteria,
+            feasibleOptions: assignments.map(({ eventId, title, date, startTime, endTime, venueName, score, reason }) => ({
+              eventId, title, date, startTime, endTime, venueName, score, reason,
+            })),
+          }),
+        },
+      ],
+      response_format: { type: 'json_object' },
+    });
+    const parsed = JSON.parse(response.choices[0].message.content);
+    if (typeof parsed.explanation !== 'string' || !parsed.explanation.trim()) {
+      return { explanation: fallback, aiEnabled: false };
+    }
+    return { explanation: parsed.explanation.slice(0, 1200), aiEnabled: true };
+  } catch {
+    console.warn('[Scheduling AI] Explanation unavailable; using deterministic schedule results.');
+    return { explanation: fallback, aiEnabled: false };
   }
-
-  const prompt = `Create a personal festival plan.
-User: ${user.name}, interests: ${(user.interests || []).join(', ')}
-Registered: ${JSON.stringify(registeredEvents.map((e) => ({ title: e.title, date: e.date, start: e.startTime, end: e.endTime })))}
-Other events: ${JSON.stringify(allEvents.slice(0, 10).map((e) => ({ id: e._id, title: e.title, category: e.category?.name })))}
-Return JSON with: plan (array of {time, event, venue}), warnings (array of strings for overlaps), summary (string).`;
-
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [{ role: 'user', content: prompt }],
-    response_format: { type: 'json_object' },
-  });
-
-  return JSON.parse(response.choices[0].message.content);
 };

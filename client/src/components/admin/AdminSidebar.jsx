@@ -21,6 +21,7 @@ const navGroups = [
     items: [
       { to: '/admin/events', label: 'Events', icon: '🎭' },
       { to: '/admin/participants', label: 'Participants', icon: '🎫' },
+      { to: '/admin/attendance', label: 'Manage Attendance', icon: '✅' },
     ],
   },
   {
@@ -50,6 +51,12 @@ const navGroups = [
 
 export default function AdminSidebar({ open, onClose }) {
   const { user, logout } = useAuth();
+  const groups = user?.role === 'organizer'
+    ? [{
+      label: 'Event Operations',
+      items: [{ to: '/organizer/attendance', label: 'Manage Attendance', icon: '✅' }],
+    }]
+    : navGroups;
 
   return (
     <>
@@ -65,12 +72,12 @@ export default function AdminSidebar({ open, onClose }) {
           </div>
           <div>
             <p className="text-sm font-semibold text-white">Metro Nexus</p>
-            <p className="text-xs text-slate-500">Admin Console</p>
+            <p className="text-xs text-slate-500">{user?.role === 'organizer' ? 'Organizer Portal' : 'Admin Console'}</p>
           </div>
         </div>
 
         <nav className="flex-1 overflow-y-auto p-3">
-          {navGroups.map((group) => (
+          {groups.map((group) => (
             <div key={group.label} className="mb-4">
               <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-600">{group.label}</p>
               <ul className="space-y-0.5">

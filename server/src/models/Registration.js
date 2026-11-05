@@ -9,6 +9,13 @@ const registrationSchema = new mongoose.Schema(
       enum: ['pending', 'approved', 'rejected', 'cancelled'],
       default: 'pending',
     },
+    attendanceStatus: {
+      type: String,
+      enum: ['unverified', 'verified', 'absent'],
+      default: 'unverified',
+    },
+    attendanceVerifiedAt: { type: Date, default: null },
+    attendanceVerifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     notes: { type: String, default: '' },
   },
   { timestamps: true }

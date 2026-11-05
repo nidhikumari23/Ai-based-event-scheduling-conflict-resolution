@@ -102,6 +102,18 @@ export default function MyRegistrations() {
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
                     <Badge type={r.status} className="hidden lg:inline-flex">{r.status}</Badge>
+                    {r.event?.status && (
+                      <Badge type={r.event.status}>{`Event Status: ${r.event.status.charAt(0).toUpperCase()}${r.event.status.slice(1)}`}</Badge>
+                    )}
+                    {r.event?.status === 'completed' && (
+                      <Badge type={r.attendanceStatus === 'verified' ? 'approved' : r.attendanceStatus === 'absent' ? 'rejected' : 'pending'}>
+                        {r.attendanceStatus === 'verified'
+                          ? 'Attendance: Present'
+                          : r.attendanceStatus === 'absent'
+                            ? 'Attendance: Absent'
+                            : 'Attendance: Not Marked'}
+                      </Badge>
+                    )}
                     <Link to={`/user/events/${r.event?._id}`} className="btn-secondary text-xs">View Event</Link>
                     {['approved', 'pending'].includes(r.status) && (
                       <button onClick={() => setCancelTarget(r)} className="btn-danger text-xs">Cancel</button>
