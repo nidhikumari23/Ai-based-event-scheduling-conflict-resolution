@@ -1,84 +1,84 @@
 # 🚀 Metro Nexus Festival OS
+
 ### AI-Powered Event Scheduling & Conflict Resolution Platform
+
+Metro Nexus Festival OS is a full-stack MERN web application designed to simplify the management of large-scale festivals and events. It combines AI-powered scheduling, intelligent conflict detection, event management, participant registration, and attendance tracking into a centralized platform.
+
+The application provides dedicated Admin and Student portals to streamline event operations, reduce manual scheduling efforts, and improve resource utilization.
 
 ## 🌐 Live Demo
 
-🚀 **Live Project:** [Metro Nexus Festival OS](https://ai-based-event-scheduling-conflict-trbe.onrender.com)
-
-Experience the AI-powered festival event scheduling and conflict resolution platform live.
-
-Metro Nexus Festival OS is a full-stack MERN web application designed to simplify the management of large-scale festivals and events. It provides intelligent event scheduling, automated conflict detection, participant registration, and role-based event management through dedicated Admin and Student portals.
-
-The platform aims to reduce manual scheduling efforts, prevent resource conflicts, and provide a seamless event management experience.
-
----
+- **Frontend:** [Metro Nexus Festival OS](https://ai-based-event-scheduling-conflict-trbe.onrender.com)
+- **Backend API:** [Backend Service](https://ai-based-event-scheduling-conflict.onrender.com)
+- **API Health Check:** [Check API Status](https://ai-based-event-scheduling-conflict.onrender.com/api/health)
 
 ## 🌟 Key Features
 
-### 🔐 1. Authentication & Role-Based Access
+### 1. 🔐 Authentication & Role-Based Access
 - Secure user registration and login.
-- Role-based access for Admin and Students.
+- Separate Admin and Student access.
+- JWT-based authentication.
 - Protected routes and authorization middleware.
 - Password management and account security.
-- Secure initial Admin setup.
 
-### 🎪 2. Event Management
+### 2. 🎪 Event Management
 - Create, update, publish, and manage events.
-- Configure event date, time, venue, capacity, and resources.
-- Manage event information through the Admin Dashboard.
+- Configure event dates, time slots, venues, capacity, and resources.
 - Track scheduled and completed events.
+- Manage event information through the Admin Dashboard.
 
-### 🤖 3. AI-Powered Scheduling
-- Generate ranked schedule proposals.
+### 3. 🤖 AI-Powered Dynamic Scheduling
+- Generate ranked scheduling proposals.
 - Analyze event scheduling requirements.
 - Recommend feasible scheduling arrangements.
-- Help administrators optimize event planning.
-- Review proposals before applying them.
+- Assist administrators in optimizing event plans.
+- Review scheduling proposals before applying them.
 
-### ⚠️ 4. Intelligent Conflict Detection & Resolution
+### 4. ⚠️ Intelligent Conflict Detection & Resolution
+
 Detect scheduling conflicts involving:
-- Venue availability
-- Staff availability
-- Resource allocation
-- Event timing overlaps
-- Venue capacity
-- Buffer-time constraints
+- Venue availability.
+- Staff availability.
+- Resource allocation.
+- Event timing overlaps.
+- Venue capacity.
+- Buffer-time constraints.
 
 Identify conflicts and help administrators review and resolve scheduling issues.
 
-### 📝 5. Student Event Registration
+### 5. 📝 Student Event Registration
 - Browse available events.
 - Register for events.
 - View registered events.
 - Track registration and event status.
 
-### ✅ 6. Attendance Management
-- Admin/Organizer can mark participants as Present or Absent.
-- Attendance is stored against the respective event registration.
+### 6. ✅ Attendance Management
+- Admins and organizers can mark participants as Present or Absent.
+- Attendance is stored against event registrations.
 - Students can view their attendance status.
-- Display event completion and attendance status in the Student Portal.
+- Track event completion and attendance information.
 
-### 🔔 7. Notification System
+### 7. 🔔 Notification System
 - Event-related notifications.
 - Registration updates.
 - User-specific notification management.
 
-### 📊 8. Role-Based Dashboards
+### 8. 📊 Role-Based Dashboards
 
 **Admin Dashboard**
-- Event management
-- Scheduling proposals
-- Conflict monitoring
-- Registration management
-- Attendance management
-- Event statistics
+- Event management.
+- AI scheduling proposals.
+- Conflict monitoring.
+- Registration management.
+- Attendance tracking.
+- Event statistics and reports.
 
 **Student Dashboard**
-- Browse events
-- My Registrations
-- Event status
-- Attendance status
-- Notifications
+- Browse available events.
+- View registrations.
+- Track event status.
+- Check attendance.
+- Receive notifications.
 
 ---
 
@@ -91,7 +91,7 @@ Identify conflicts and help administrators review and resolve scheduling issues.
 | Database | MongoDB, Mongoose |
 | AI Integration | OpenAI API |
 | Authentication | JWT, Password Hashing |
-| API Communication | REST APIs |
+| API Communication | REST APIs, Axios |
 | Development Tools | Git, GitHub, VS Code, Postman |
 
 ---
@@ -112,6 +112,7 @@ Metro-Nexus-Festival-OS/
 │
 ├── server/
 │   ├── src/
+│   │   ├── config/
 │   │   ├── controllers/
 │   │   ├── models/
 │   │   ├── routes/
@@ -121,12 +122,28 @@ Metro-Nexus-Festival-OS/
 │   ├── package.json
 │   └── ...
 │
+├── screenshots/
+│   ├── login.png
+│   ├── dashboard.png
+│   ├── event-management.png
+│   ├── ai-scheduling.png
+│   └── reports.png
+│
 └── README.md
 ```
 
 ---
 
 ## ⚙️ Installation & Setup
+
+### Prerequisites
+
+Make sure you have installed:
+
+- Node.js
+- npm
+- MongoDB Atlas account or MongoDB instance
+- Git
 
 ### 1. Clone the Repository
 
@@ -143,30 +160,28 @@ cd server
 npm install
 ```
 
-### 3. Configure Backend Environment
+### 3. Configure Backend Environment Variables
 
 Create a `.env` file inside the `server` directory.
 
-Add the required configuration:
-
 ```env
 PORT=5000
-MONGODB_URI=your_mongodb_connection_string
+MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 OPENAI_API_KEY=your_openai_api_key
 ```
 
-Add other environment variables required by your existing project, including email configuration if password reset is enabled.
+Add any additional environment variables required by your project, such as email configuration if password reset is enabled.
 
-**Important:** Never commit `.env` files, passwords, API keys, or other sensitive credentials to GitHub.
+**Important:** Never upload `.env` files, API keys, database credentials, or other sensitive information to GitHub.
 
-### 4. Start Backend Server
+### 4. Start the Backend Server
 
 ```bash
 npm run dev
 ```
 
-Backend runs at:
+Backend API:
 
 ```text
 http://localhost:5000
@@ -181,13 +196,21 @@ cd client
 npm install
 ```
 
-### 6. Start Frontend Server
+### 6. Configure Frontend Environment
+
+Create a `.env` file inside the `client` directory:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+### 7. Start the Frontend Server
 
 ```bash
 npm run dev
 ```
 
-Frontend runs at:
+Frontend:
 
 ```text
 http://localhost:5173
@@ -198,41 +221,63 @@ http://localhost:5173
 ## 🔄 Application Workflow
 
 ```text
-Admin Login
-    |
-    v
-Create & Manage Events
-    |
-    v
-Configure Venues, Staff & Resources
-    |
-    v
-Generate AI Scheduling Proposal
-    |
-    v
-Detect Scheduling Conflicts
-    |
-    v
-Review & Apply Schedule
-    |
-    v
-Students Browse & Register
-    |
-    v
-Event Takes Place
-    |
-    v
-Admin Marks Attendance
-    |
-    v
-Students View Attendance Status
+        Admin Login
+             |
+             v
+     Create & Manage Events
+             |
+             v
+ Configure Venues, Staff & Resources
+             |
+             v
+ Generate AI Scheduling Proposal
+             |
+             v
+   Detect Scheduling Conflicts
+             |
+             v
+    Review & Apply Schedule
+             |
+             v
+   Students Browse & Register
+             |
+             v
+       Event Takes Place
+             |
+             v
+    Admin Marks Attendance
+             |
+             v
+ Students View Attendance Status
 ```
 
 ---
 
-## 🔒 Security & Reliability
+## 📸 Project Screenshots
 
-The application includes security and validation mechanisms such as:
+### 1. Login & Authentication
+
+![Login Page](./screenshots/login.png)
+
+### 2. Admin Dashboard
+
+![Admin Dashboard](./screenshots/dashboard.png)
+
+### 3. Event Management
+
+![Event Management](./screenshots/event-management.png)
+
+### 4. AI-Powered Dynamic Scheduling
+
+![AI Scheduling](./screenshots/ai-scheduling.png)
+
+### 5. Reports & Analytics
+
+![Reports & Analytics](./screenshots/reports.png)
+
+---
+
+## 🔒 Security & Reliability
 
 - JWT-based authentication.
 - Role-based authorization.
@@ -248,10 +293,11 @@ The application includes security and validation mechanisms such as:
 ## 🎯 Project Objectives
 
 - Automate complex event scheduling workflows.
-- Reduce venue, staff, and resource conflicts.
+- Minimize venue, staff, and resource conflicts.
 - Improve festival planning efficiency.
-- Provide transparent event registration and attendance tracking.
-- Simplify event administration through AI-assisted scheduling.
+- Simplify event registration and attendance tracking.
+- Provide AI-assisted scheduling recommendations.
+- Centralize festival operations through role-based dashboards.
 
 ---
 
@@ -259,8 +305,8 @@ The application includes security and validation mechanisms such as:
 
 - Advanced scheduling optimization algorithms.
 - More comprehensive automated testing.
-- Improved scheduling analytics.
 - Enhanced real-time notification workflows.
+- Improved scheduling analytics and reporting.
 - Performance and scalability improvements.
 
 ---
@@ -277,6 +323,6 @@ GitHub: [nidhikumari23](https://github.com/nidhikumari23)
 
 ## ⭐ Support
 
-If you find this project interesting, consider giving the repository a star on GitHub!
+If you find this project interesting, consider giving the repository a star ⭐ on GitHub.
 
 **Metro Nexus Festival OS – Smarter Scheduling. Seamless Events.**
