@@ -1,6 +1,12 @@
 # 🚀 Metro Nexus Festival OS
 ### AI-Powered Event Scheduling & Conflict Resolution Platform
 
+## 🌐 Live Demo
+
+🚀 **Live Project:** [Metro Nexus Festival OS](https://ai-based-event-scheduling-conflict-trbe.onrender.com)
+
+Experience the AI-powered festival event scheduling and conflict resolution platform live.
+
 Metro Nexus Festival OS is a full-stack MERN web application designed to simplify the management of large-scale festivals and events. It provides intelligent event scheduling, automated conflict detection, participant registration, and role-based event management through dedicated Admin and Student portals.
 
 The platform aims to reduce manual scheduling efforts, prevent resource conflicts, and provide a seamless event management experience.
